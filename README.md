@@ -553,3 +553,73 @@ items:
           priorityClassName: system-node-critical
       updateStrategy:
         type: RollingUpdate
+file_beat.yml
+filebeat.inputs:
+
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/react_access.log
+    - /var/log/nginx/react_error.log
+  fields:
+    app: react
+  fields_under_root: true
+
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/vue_access.log
+    - /var/log/nginx/vue_error.log
+  fields:
+    app: vue
+  fields_under_root: true
+
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/access.log
+    - /var/log/nginx/error.log
+  fields:
+    app: nginx_default
+  fields_under_root: true
+
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+setup.template.settings:
+  index.number_of_shards: 1
+
+setup.kibana:
+  host: "http://10.111.15.213:5601"
+
+output.elasticsearch:
+  hosts: ["http://10.102.30.35:9200"]
+
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
+
+nginx.yml
+- module: nginx
+  access:
+    enabled: true
+    var.paths:
+      - /var/log/nginx/access.log*
+      - /var/log/nginx/react_access.log*
+      - /var/log/nginx/vue_access.log*
+  error:
+    enabled: true
+    var.paths:
+      - /var/log/nginx/error.log*
+      - /var/log/nginx/react_error.log*
+      - /var/log/nginx/vue_error.log*
+  ingress_controller:
+    enabled: false
+
+
+
+nginx.yml
