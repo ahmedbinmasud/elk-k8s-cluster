@@ -24,7 +24,7 @@ spec:
               value: single-node
           volumeMounts:
             - name: data
-              mountPath: /usr/share/elasticsearch/data
+              mountPath: /var/lib/elasticsearch/data
   volumeClaimTemplates:
     - metadata:
         name: data
